@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مولد QR للفواتير</title>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f4f4f4;
+    padding:20px;
+}
+
+.box{
+    max-width:500px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:10px;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    background:#16a34a;
+    color:#fff;
+    border:none;
+    cursor:pointer;
+}
+
+#qrcode{
+    text-align:center;
+    margin-top:20px;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+
+<h2>إنشاء QR للفاتورة</h2>
+
+<input id="seller" placeholder="اسم المنشأة">
+
+<input id="vat" placeholder="الرقم الضريبي">
+
+<input id="date" type="datetime-local">
+
+<input id="total" placeholder="إجمالي الفاتورة">
+
+<input id="tax" placeholder="إجمالي الضريبة">
+
+<button onclick="generateQR()">
+إنشاء QR
+</button>
+
+<div id="qrcode"></div>
+
+</div>
+
+<script>
+
+function tlv(tag,value){
+
+    const encoder =
+    new TextEncoder();
+
+    const valueBytes =
+    encoder.encode(value);
+
+    return [
+        tag,
+        valueBytes.length,
+        ...valueBytes
+    ];
+
+}
+
+function generateQR(){
+
+    const seller =
+    document.getElementById("seller").value;
+
+    const vat =
+    document.getElementById("vat").value;
+
+    const date =
+    document.getElementById("date").value;
+
+    const total =
+    document.getElementById("total").value;
+
+    const tax =
+    document.getElementById("tax").value;
+
+
+    let bytes = [
+
+        ...tlv(1,seller),
+
+        ...tlv(2,vat),
+
+        ...tlv(3,date),
+
+        ...tlv(4,total),
+
+        ...tlv(5,tax)
+
+    ];
+
+
+    const binary =
+    String.fromCharCode(...bytes);
+
+    const base64 =
+    btoa(binary);
+
+
+    document.getElementById(
+        "qrcode"
+    ).innerHTML = "";
+
+
+    QRCode.toCanvas(
+        base64,
+        {
+            width:250
+        },
+        function(err,canvas){
+
+            if(err){
+                alert(err);
+                return;
+            }
+
+            document
+            .getElementById("qrcode")
+            .appendChild(canvas);
+
+        }
+    );
+
+}
+
+</script>
+
+</body>
+</html>
